@@ -1,6 +1,22 @@
-function! textobj#word_column#select(word)
+function! textobj#word_column#select_iw()
+    return s:select('iw')
+endfunction
+
+function! textobj#word_column#select_aw()
+    return s:select('aw')
+endfunction
+
+function! textobj#word_column#select_iW()
+    return s:select('iW')
+endfunction
+
+function! textobj#word_column#select_aW()
+    return s:select('aW')
+endfunction
+
+function! s:select(textobj)
   let cursor_col = virtcol(".")
-  exec "silent normal! v" . a:word . "\<Esc>"
+  exec "silent normal! v" . a:textobj . "\<Esc>"
   let start_col       = virtcol("'<")
   let stop_col        = virtcol("'>")
   let line_num        = line(".")
@@ -12,10 +28,12 @@ function! textobj#word_column#select(word)
   if (exists("g:textobj_word_column_no_smart_boundary_cols"))
     let col_bounds = [start_col, stop_col]
   else
-    let col_bounds = s:find_smart_boundary_cols(start_line, stop_line, cursor_col, a:word, whitespace_only)
+    let col_bounds = s:find_smart_boundary_cols(start_line, stop_line, cursor_col, a:textobj, whitespace_only)
   endif
 
-  exec "keepjumps silent normal!" . start_line . "gg" . col_bounds[0] . "|" . stop_line . "gg" . col_bounds[1] . "|"
+  let [bufnum, _, _, off] = getpos('.')
+
+  return ["\<C-v>", [bufnum, start_line, col_bounds[0], off], [bufnum, stop_line, col_bounds[1], off]]
 endfunction
 
 function! s:find_smart_boundary_cols(start_line, stop_line, cursor_col, textobj, whitespace_only)

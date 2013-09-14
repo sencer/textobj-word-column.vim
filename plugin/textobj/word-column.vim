@@ -2,15 +2,15 @@ if (exists("g:loaded_textobj_word_column"))
   finish
 endif
 
-if (!exists("g:skip_default_textobj_word_column_mappings"))
-  xnoremap <silent> ac :<C-u>call textobj#word_column#select("aw")<cr>
-  xnoremap <silent> aC :<C-u>call textobj#word_column#select("aW")<cr>
-  xnoremap <silent> ic :<C-u>call textobj#word_column#select("iw")<cr>
-  xnoremap <silent> iC :<C-u>call textobj#word_column#select("iW")<cr>
-  onoremap <silent> ac :call textobj#word_column#select("aw")<cr>
-  onoremap <silent> aC :call textobj#word_column#select("aW")<cr>
-  onoremap <silent> ic :call textobj#word_column#select("iw")<cr>
-  onoremap <silent> iC :call textobj#word_column#select("iW")<cr>
-endif
+call textobj#user#plugin('wordcolumn', {
+            \ 'w' : {
+            \   'select-i' : 'iv', '*select-i-function*' : 'textobj#word_column#select_iw',
+            \   'select-a' : 'av', '*select-a-function*' : 'textobj#word_column#select_aw',
+            \   },
+            \ 'W' : {
+            \   'select-i' : 'iV', '*select-i-function*' : 'textobj#word_column#select_iW',
+            \   'select-a' : 'aV', '*select-a-function*' : 'textobj#word_column#select_aW',
+            \   },
+            \ })
 
 let g:loaded_textobj_word_column = 1
