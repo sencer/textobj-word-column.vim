@@ -127,3 +127,5 @@ endfunction
 function! s:is_comment(line_num, column)
   return synIDattr(synIDtrans(synID(a:line_num, a:column, 1)),"name") == "Comment"
 endfunction
+
+" vim:set et sw=2 ts=2:

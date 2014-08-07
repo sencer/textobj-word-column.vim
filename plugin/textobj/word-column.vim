@@ -20,3 +20,5 @@ let g:loaded_textobj_word_column = 1
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim:set et sw=2 ts=2:
