@@ -1,0 +1,27 @@
+Given vim (sample code from textobj-word-column):
+  exec "silent normal! v" . a:textobj . "\<Esc>"
+  let start_col       = virtcol("'<")
+  let stop_col        = virtcol("'>")
+  let line_num        = line(".")
+  let indent_level    = s:indent_level(".")
+
+Do (Selection looks for matching word lengths):
+  jfvcicflirtcol
+
+Expect vim (Selected virtcol and changed to flirtcol):
+  exec "silent normal! v" . a:textobj . "\<Esc>"
+  let start_col       = flirtcol("'<")
+  let stop_col        = flirtcol("'>")
+  let line_num        = line(".")
+  let indent_level    = s:indent_level(".")
+
+Do (Selection falls back to matching beginning of word with current word length):
+  3j2flvicyP
+
+Expect vim (Selected line and copypaste):
+  exec "silent normal! v" . a:textobj . "\<Esc>"
+  let start_col       = virtvirtcol("'<")
+  let stop_col        = virtvirtcol("'>")
+  let line_num        = lineline(".")
+  let indent_level    = s:ins:indent_level(".")
+
