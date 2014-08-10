@@ -1,0 +1,54 @@
+Given (text from issue #3):
+  let g:ctrlp_extensions = ['funky', 'register']
+  nmap <C-o>l :CtrlPLastMode<CR>
+  nmap <C-o>b :CtrlPBuffer<CR>
+  nmap <C-o>f :call ctrlp#init(ctrlp#funky#id())<CR>
+  nmap <C-o>r :CtrlPRegister<CR>
+
+Do (put my cursor on the first < and type vicx):
+  jf<vicx
+
+Expect(the column of < beneath are selected and deleted):
+  let g:ctrlp_extensions = ['funky', 'register']
+  nmap C-o>l :CtrlPLastMode<CR>
+  nmap C-o>b :CtrlPBuffer<CR>
+  nmap C-o>f :call ctrlp#init(ctrlp#funky#id())<CR>
+  nmap C-o>r :CtrlPRegister<CR>
+
+Do (put my cursor on the first < and type vicrM):
+  jf<lvicrM
+
+Expect(the column of C beneath are selected and changed to M):
+  let g:ctrlp_extensions = ['funky', 'register']
+  nmap <M-o>l :CtrlPLastMode<CR>
+  nmap <M-o>b :CtrlPBuffer<CR>
+  nmap <M-o>f :call ctrlp#init(ctrlp#funky#id())<CR>
+  nmap <M-o>r :CtrlPRegister<CR>
+
+Given (text from issue #2):
+  let ctrlp_extensions = ['funky', 'register']
+  nmap <C-o>l :CtrlPLastMode<CR>
+  nmap <C-o>b :CtrlPBuffer<CR>
+  nmap <C-o>f :call ctrlp#init(ctrlp#funky#id())<CR>
+  nmap <C-o>r :CtrlPRegister<CR>
+
+Do (put my cursor on the first < and type vicx):
+  jf<vicx
+
+Expect(the column of < beneath are selected and deleted):
+  let ctrlp_extensions = ['funky', 'register']
+  nmap C-o>l :CtrlPLastMode<CR>
+  nmap C-o>b :CtrlPBuffer<CR>
+  nmap C-o>f :call ctrlp#init(ctrlp#funky#id())<CR>
+  nmap C-o>r :CtrlPRegister<CR>
+
+Do (put my cursor on the first < and type vicx):
+  jf<lvicrM
+
+Expect(the column of < beneath are selected and deleted):
+  let ctrlp_extensions = ['funky', 'register']
+  nmap <M-o>l :CtrlPLastMode<CR>
+  nmap <M-o>b :CtrlPBuffer<CR>
+  nmap <M-o>f :call ctrlp#init(ctrlp#funky#id())<CR>
+  nmap <M-o>r :CtrlPRegister<CR>
+
