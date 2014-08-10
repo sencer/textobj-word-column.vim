@@ -17,23 +17,30 @@ endfunction
 function! s:select(textobj)
   let cursor_col = virtcol(".")
   exec "silent normal! v" . a:textobj . "\<Esc>"
-  let start_col       = virtcol("'<")
-  let stop_col        = virtcol("'>")
+  let col_bounds      = [virtcol("'<"), virtcol("'>")]
   let line_num        = line(".")
   let indent_level    = s:indent_level(".")
-  let start_line      = s:find_boundary_row(line_num, col("'<"), start_col, indent_level, -1)
-  let stop_line       = s:find_boundary_row(line_num, col("'<"), start_col, indent_level, 1)
-  let whitespace_only = s:whitespace_column_wanted(start_line, stop_line, cursor_col)
+
+  let line_bounds     = []
+  for step in [-1, 1]
+    let line_bounds += [s:find_boundary_row(line_num, col("'<"), col_bounds[0], indent_level, step)]
+  endfor
+
+  let whitespace_only = s:whitespace_column_wanted(line_bounds[0], line_bounds[1], cursor_col)
 
   if (exists("g:textobj_word_column_no_smart_boundary_cols"))
-    let col_bounds = [start_col, stop_col]
+    " Do nothing: keep use input col bounds.
   else
-    let col_bounds = s:find_smart_boundary_cols(start_line, stop_line, cursor_col, a:textobj, whitespace_only)
+    let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, a:textobj, whitespace_only)
   endif
 
   let [bufnum, _, _, off] = getpos('.')
+  let result = ["\<C-v>"]
+  for i in range(2)
+    let result += [[bufnum, line_bounds[i], col_bounds[i], off]]
+  endfor
 
-  return ["\<C-v>", [bufnum, start_line, col_bounds[0], off], [bufnum, stop_line, col_bounds[1], off]]
+  return result
 endfunction
 
 function! s:find_smart_boundary_cols(start_line, stop_line, cursor_col, textobj, whitespace_only)
