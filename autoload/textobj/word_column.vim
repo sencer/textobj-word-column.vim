@@ -30,8 +30,10 @@ function! s:select(textobj)
 
   if (exists("g:textobj_word_column_no_smart_boundary_cols"))
     " Do nothing: keep use input col bounds.
-  else
+  elseif (exists("g:textobj_word_column_no_clever_boundary_cols"))
     let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, a:textobj, whitespace_only)
+  else
+    let [line_bounds, col_bounds] = s:find_rectangle(line_num, col_bounds, a:textobj, whitespace_only)
   endif
 
   let [bufnum, _, _, off] = getpos('.')
@@ -42,6 +44,156 @@ function! s:select(textobj)
 
   return result
 endfunction
+
+""""""""""""""""""""""""""""
+"  New boundary discovery  "
+""""""""""""""""""""""""""""
+
+function! s:find_rectangle(start_line, col_bounds, textobj, whitespace_only)
+  " Check the surrounding lines for the same word boundaries.
+  let r = s:check_matches_above(a:start_line, a:col_bounds)
+  let has_start_match_above = r[0]
+  let has_end_match_above = r[1]
+  let has_exact_match_above = has_start_match_above && has_end_match_above
+
+  let r = s:check_matches_after(a:start_line, a:col_bounds)
+  let has_start_match_after = r[0]
+  let has_end_match_after = r[1]
+  let has_exact_match_after = has_start_match_after && has_end_match_after
+
+
+  " When the line above or below has the same boundaries, find the matching
+  " rectangle.
+  if has_exact_match_above || has_exact_match_after
+    return s:find_exact_rectangle(a:start_line, a:col_bounds)
+  endif
+
+  " We don't have exact matches above or below, so look for exact matches at
+  if has_start_match_above || has_start_match_after
+    return s:expand_to_find_rectangle(a:start_line, a:col_bounds, 0)
+  elseif has_end_match_above || has_end_match_after
+    return s:expand_to_find_rectangle(a:start_line, a:col_bounds, 1)
+  endif
+
+  " Fallback to current selection
+  return [[a:start_line, a:start_line], a:col_bounds]
+endf
+
+function! s:find_exact_rectangle(start_line, col_bounds)
+  let IsBoundaryAcceptableFn = s:create_both_check_fn()
+  return s:find_rectangle_for_bounds(a:start_line, a:col_bounds, IsBoundaryAcceptableFn)
+endf
+
+function! s:expand_to_find_rectangle(start_line, col_bounds, bound_to_check)
+  let IsBoundaryAcceptableFn = s:create_single_check_fn(a:bound_to_check)
+  return s:find_rectangle_for_bounds(a:start_line, a:col_bounds, IsBoundaryAcceptableFn)
+endf
+
+function! s:create_single_check_fn(bound_idx)
+  let bound_to_check = { 'bound_idx' : a:bound_idx }
+  function! bound_to_check.eval(bounds) dict
+    return a:bounds[self.bound_idx]
+  endf
+
+  return bound_to_check
+endf
+
+function! s:create_both_check_fn()
+  let bound_to_check = { 'bound_idx' : 'both' }
+  function! bound_to_check.eval(bounds) dict
+    return a:bounds[0] && a:bounds[1]
+  endf
+
+  return bound_to_check
+endf
+
+function! s:find_rectangle_for_bounds(start_line, col_bounds, IsBoundaryAcceptableFn)
+  let top    = s:find_rectangle_boundary_for_direction_and_bounds(a:start_line, a:col_bounds, -1, a:IsBoundaryAcceptableFn)
+  let bottom = s:find_rectangle_boundary_for_direction_and_bounds(a:start_line, a:col_bounds, 1, a:IsBoundaryAcceptableFn)
+
+  return [[top, bottom], a:col_bounds]
+endf
+
+function! s:find_rectangle_boundary_for_direction_and_bounds(start_line, col_bounds, delta, IsBoundaryAcceptableFn)
+  let line_num = a:start_line
+  let r = [1,1]
+
+  let test_line = line_num
+  while a:IsBoundaryAcceptableFn.eval(r)
+    let line_num = test_line
+    let test_line = line_num + a:delta
+    let r = s:check_matches(test_line, a:col_bounds)
+  endwhile
+
+  return line_num
+endf
+
+function! s:is_valid_line(line_num)
+  return 0 < a:line_num && a:line_num <= line('$')
+endf
+
+function! s:check_matches(start_line, col_bounds)
+  if s:is_valid_line(a:start_line)
+    let has_start_match = s:has_matching_start_boundary(a:start_line, a:col_bounds[0])
+    let has_end_match = s:has_matching_end_boundary(a:start_line, a:col_bounds[1])
+    return [has_start_match, has_end_match]
+  else
+    return [0,0]
+  endif
+endf
+
+function! s:check_matches_above(start_line, col_bounds)
+  let above_line = a:start_line - 1
+  return s:check_matches(above_line, a:col_bounds)
+endf
+
+function! s:check_matches_after(start_line, col_bounds)
+  let after_line = a:start_line + 1
+  return s:check_matches(after_line, a:col_bounds)
+endf
+
+function! s:has_matching_boundaries(line_num, col_bounds)
+  return s:has_matching_start_boundary(a:line_num, a:col_bounds[0]) && s:has_matching_end_boundary(a:line_num, a:col_bounds[1])
+endf
+function! s:has_matching_start_boundary(line_num, start_col)
+  if a:start_col == 1
+    " Beginning of line is always a boundary.
+    return 1
+  endif
+  return s:has_matching_boundary(a:line_num, a:start_col, '^.\<.')
+endf
+function! s:has_matching_end_boundary(line_num, end_col)
+  if a:end_col == ( virtcol([a:line_num, "$"]) - 1 )
+    " End of line is always a boundary.
+    return 1
+  endif
+  return s:has_matching_boundary(a:line_num, a:end_col, '^..\>.')
+endf
+function! s:has_matching_boundary(line_num, col, boundary_re)
+  let line = getline(a:line_num)
+  if len(line) == 0
+    " Empty lines never match
+    return 0
+  endif
+
+  " Include the character before the column we're looking at. If we're
+  " checking start, we want to see the space before. If we're checking end,
+  " we want to see... TODO is that right?
+  let re_col = a:col - 1
+  " Columns are one indexed but string index is zero indexed, so decrement
+  " again.
+  let re_col -= 1
+  if re_col >= 0
+    return 0 <= match(line, a:boundary_re, re_col)
+  endif
+
+  return 0
+endf
+
+
+"""""""""""""""""""""""""""""""""
+"  Original boundary discovery  "
+"""""""""""""""""""""""""""""""""
 
 function! s:find_smart_boundary_cols(start_line, stop_line, cursor_col, textobj, whitespace_only)
   let col_bounds = []
