@@ -1,4 +1,4 @@
-Given vim (sample code from textobj-word-column):
+Given vim (Sample code from textobj-word-column):
   exec "silent normal! v" . a:textobj . "\<Esc>"
   let start_col       = virtcol("'<")
   let stop_col        = virtcol("'>")
@@ -24,4 +24,34 @@ Expect vim (Selected line and copypaste):
   let stop_col        = virtvirtcol("'>")
   let line_num        = lineline(".")
   let indent_level    = s:ins:indent_level(".")
+
+Given cpp (Words with trailing alignment):
+  int start_cols      = virtcol();
+  float stop_col      = virtcol();
+  char line_nums      = line();
+  float* indent_level = indent_level();
+
+Do (Selection of right-aligned column):
+  jwvicA_const\<Esc>
+
+Expect cpp (Appended to right-aligned column):
+  int start_cols_const      = virtcol();
+  float stop_col_const      = virtcol();
+  char line_nums_const      = line();
+  float* indent_level = indent_level();
+
+Given cpp (Surrounding lines with both start and trailing alignment):
+  int start_cols      = virtcol();
+  float stop_col      = virtcol();
+  char line_nums      = line();
+  int* indent_level = indent_level();
+
+Do (Selection prefers start alignment over end alignment):
+  2jwvicInew_\<Esc>
+
+Expect cpp (Prepended to matching start-aligned text):
+  int start_cols      = virtcol();
+  float stop_col      = virtcol();
+  char new_line_nums      = line();
+  int* new_indent_level = indent_level();
 
