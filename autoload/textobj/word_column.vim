@@ -115,17 +115,17 @@ function! s:find_rectangle_for_bounds(start_line, col_bounds, IsBoundaryAcceptab
 endf
 
 function! s:find_rectangle_boundary_for_direction_and_bounds(start_line, col_bounds, delta, IsBoundaryAcceptableFn)
-  let line_num = a:start_line
+  let last_matching_line_num = a:start_line
   let r = [1,1]
 
-  let test_line = line_num
+  let test_line = last_matching_line_num
   while a:IsBoundaryAcceptableFn.eval(r)
-    let line_num = test_line
-    let test_line = line_num + a:delta
+    let last_matching_line_num = test_line
+    let test_line = last_matching_line_num + a:delta
     let r = s:check_matches(test_line, a:col_bounds)
   endwhile
 
-  return line_num
+  return last_matching_line_num
 endf
 
 function! s:is_valid_line(line_num)
