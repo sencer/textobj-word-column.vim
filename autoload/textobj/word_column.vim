@@ -122,7 +122,7 @@ function! s:find_rectangle_boundary_for_direction_and_bounds(start_line, col_bou
   while a:IsBoundaryAcceptableFn.eval(r)
     let last_matching_line_num = test_line
     let test_line = last_matching_line_num + a:delta
-    let r = s:check_matches(test_line, a:col_bounds)
+    let r = s:check_matches(last_matching_line_num, test_line, a:col_bounds)
   endwhile
 
   return last_matching_line_num
@@ -132,11 +132,33 @@ function! s:is_valid_line(line_num)
   return 0 < a:line_num && a:line_num <= line('$')
 endf
 
-function! s:check_matches(start_line, col_bounds)
-  if s:is_valid_line(a:start_line)
-    let has_start_match = s:has_matching_start_boundary(a:start_line, a:col_bounds[0])
-    let has_end_match = s:has_matching_end_boundary(a:start_line, a:col_bounds[1])
-    return [has_start_match, has_end_match]
+function! s:is_identical(ref_line, check_line, col_bounds)
+  " Check if the column selection given by col_bounds is identical on both
+  " input line numbers.
+  "
+  let ref_line = getline(a:ref_line)
+  let check_line = getline(a:check_line)
+
+  let char_bounds = [a:col_bounds[0] - 1, a:col_bounds[1] - 1]
+
+  let ref_selection  = ref_line[char_bounds[0] : char_bounds[1]]
+  let check_selection = check_line[char_bounds[0] : char_bounds[1]]
+
+  return ref_selection == check_selection
+endf
+
+function! s:check_matches(ref_line, check_line, col_bounds)
+  if s:is_valid_line(a:check_line)
+    if s:is_identical(a:ref_line, a:check_line, a:col_bounds)
+      " Handles symbols: requires them to be identical since they don't
+      " every match word boundaries. Also looks for identical words which
+      " seems useful.
+      return [1,1]
+    else
+      let has_start_match = s:has_matching_start_boundary(a:check_line, a:col_bounds[0])
+      let has_end_match = s:has_matching_end_boundary(a:check_line, a:col_bounds[1])
+      return [has_start_match, has_end_match]
+    endif
   else
     return [0,0]
   endif
@@ -144,12 +166,12 @@ endf
 
 function! s:check_matches_above(start_line, col_bounds)
   let above_line = a:start_line - 1
-  return s:check_matches(above_line, a:col_bounds)
+  return s:check_matches(a:start_line, above_line, a:col_bounds)
 endf
 
 function! s:check_matches_after(start_line, col_bounds)
   let after_line = a:start_line + 1
-  return s:check_matches(after_line, a:col_bounds)
+  return s:check_matches(a:start_line, after_line, a:col_bounds)
 endf
 
 function! s:has_matching_boundaries(line_num, col_bounds)
