@@ -144,7 +144,7 @@ function! s:is_identical(ref_line, check_line, col_bounds)
   let ref_selection  = ref_line[char_bounds[0] : char_bounds[1]]
   let check_selection = check_line[char_bounds[0] : char_bounds[1]]
 
-  return ref_selection == check_selection
+  return ref_selection ==# check_selection
 endf
 
 function! s:check_matches(ref_line, check_line, col_bounds)
