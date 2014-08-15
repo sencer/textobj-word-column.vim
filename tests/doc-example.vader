@@ -1,0 +1,28 @@
+Given (sample text from documentation):
+  abc    omg
+  abcdef omg
+  abc    omg
+
+Do (TODO: position cursor and change to x):
+  fccicx
+
+Expect (output of documentation):
+  x omg
+  x omg
+  x omg
+
+Do (TODO: position cursor and change to x):
+  ellcicx
+
+Expect (output of documentation):
+  x omg
+  x omg
+  x omg
+
+Do (TODO: position cursor and change to x):
+  fohcicx
+
+Expect (output of documentation):
+  abc   xomg
+  abcdefxomg
+  abc   xomg
