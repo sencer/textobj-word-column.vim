@@ -1,0 +1,52 @@
+Given (some text starts in first column):
+  function! s:has_matching_start_boundary(line_num, start_col)
+    let boundary_re = '^.\<.'
+    if a:start_col == 1
+      return 1
+    endif
+    return s:has_matching_boundary(a:line_num, a:start_col, boundary_re)
+  endf
+  function! s:has_matching_end_boundary(line_num, end_col)
+    let boundary_re = '^..\>.'
+    if a:end_col == ( virtcol([a:line_num, "$"]) - 1 )
+      return 1
+    endif
+    return s:has_matching_boundary(a:line_num, a:end_col, boundary_re)
+  endf
+
+Do (TODO: change column to x):
+  /endf\<CR>cicx
+
+Expect (only adjacent lines that start in first column are affected):
+  function! s:has_matching_start_boundary(line_num, start_col)
+    let boundary_re = '^.\<.'
+    if a:start_col == 1
+      return 1
+    endif
+    return s:has_matching_boundary(a:line_num, a:start_col, boundary_re)
+  x
+  xtion! s:has_matching_end_boundary(line_num, end_col)
+    let boundary_re = '^..\>.'
+    if a:end_col == ( virtcol([a:line_num, "$"]) - 1 )
+      return 1
+    endif
+    return s:has_matching_boundary(a:line_num, a:end_col, boundary_re)
+  endf
+
+Given (text has same trailing end):
+  End of line won't have trailing
+             character. Make sure
+             it's a word boundary
+                so we don't match
+             every nonblank line.
+
+Do (TODO: change column to x):
+  /sure\<CR>cicx
+
+Expect (text has same trailing end):
+  End of line won't have traix
+             character. Make x
+             it's a word bounx
+                so we don't mx
+             every nonblank line.
+
