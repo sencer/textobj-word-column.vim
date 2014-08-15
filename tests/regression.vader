@@ -14,7 +14,7 @@ Given (some text starts in first column):
     return s:has_matching_boundary(a:line_num, a:end_col, boundary_re)
   endf
 
-Do (TODO: change column to x):
+Do (change column to x):
   /endf\<CR>cicx
 
 Expect (only adjacent lines that start in first column are affected):
@@ -40,7 +40,7 @@ Given (text has same trailing end):
                 so we don't match
              every nonblank line.
 
-Do (TODO: change column to x):
+Do (change column to x):
   /sure\<CR>cicx
 
 Expect (text has same trailing end):

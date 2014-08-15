@@ -178,18 +178,29 @@ function! s:has_matching_boundaries(line_num, col_bounds)
   return s:has_matching_start_boundary(a:line_num, a:col_bounds[0]) && s:has_matching_end_boundary(a:line_num, a:col_bounds[1])
 endf
 function! s:has_matching_start_boundary(line_num, start_col)
+  " Include the character before the column we're looking at. we want to see
+  " the space or other word-boundary-breaking character before. 
+  let check_col = a:start_col - 1
+  let boundary_re = '^.\<.'
   if a:start_col == 1
-    " Beginning of line is always a boundary.
-    return 1
+    " Beginning of line won't have leading character. Make sure it's a word
+    " boundary so we don't match every nonblank line.
+    let boundary_re = '^\<.'
+    let check_col = a:start_col
   endif
-  return s:has_matching_boundary(a:line_num, a:start_col, '^.\<.')
+  return s:has_matching_boundary(a:line_num, check_col, boundary_re)
 endf
 function! s:has_matching_end_boundary(line_num, end_col)
+  " Include the character after the column we're looking at. If we're checking
+  " end, accept eol instead.
+  let check_col = a:end_col
+  let boundary_re = '^.\>.'
   if a:end_col == ( virtcol([a:line_num, "$"]) - 1 )
-    " End of line is always a boundary.
-    return 1
+    " End of line won't have trailing character. Make sure it's a word
+    " boundary so we don't match every nonblank line.
+    let boundary_re = '^.\>'
   endif
-  return s:has_matching_boundary(a:line_num, a:end_col, '^..\>.')
+  return s:has_matching_boundary(a:line_num, check_col, boundary_re)
 endf
 function! s:has_matching_boundary(line_num, col, boundary_re)
   let line = getline(a:line_num)
@@ -198,13 +209,9 @@ function! s:has_matching_boundary(line_num, col, boundary_re)
     return 0
   endif
 
-  " Include the character before the column we're looking at. If we're
-  " checking start, we want to see the space before. If we're checking end,
-  " we want to see... TODO is that right?
-  let re_col = a:col - 1
   " Columns are one indexed but string index is zero indexed, so decrement
   " again.
-  let re_col -= 1
+  let re_col = a:col - 1
   if re_col >= 0
     return 0 <= match(line, a:boundary_re, re_col)
   endif
