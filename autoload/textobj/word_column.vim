@@ -34,6 +34,10 @@ function! s:select(textobj)
     let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, a:textobj, whitespace_only)
   else
     let [line_bounds, col_bounds] = s:find_rectangle(line_num, col_bounds, a:textobj, whitespace_only)
+    " Use smart boundary cols for 'around'.
+    if a:textobj[0] == 'a'
+      let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, 'i'. a:textobj[1], whitespace_only)
+    endif
   endif
 
   let [bufnum, _, _, off] = getpos('.')

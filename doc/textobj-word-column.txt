@@ -23,19 +23,19 @@ start of the block, and then using vim motions to move the cursor to the end of
 the block, and finally doing the appropriate operation.
 
 With a text object for columns, establishing the visual block is much easier,
-and even unecessary for certain operations.
+and even unnecessary for certain operations.
 
 ===============================================================================
 WORD-BASED COLUMN                                *textobj-word-column-mappings*
 
                                                    *ac* *cac* *dac* *vac* *yac*
-ac               "a column", a column based on "a word" |aw|.
+ac               "around column", a column expanded to the largest "word" |iw|.
 
                                                    *ic* *cic* *dic* *vic* *yic*
 ic               "inner column", a column based on the "inner word" |iw|.
 
                                                    *aC* *caC* *daC* *vaC* *yaC*
-aC               "a COLUMN", a column based on "a WORD" |aW|.
+aC               "around COLUMN", a column expanded to the largest "WORD" |iW|.
 
                                                    *iC* *ciC* *diC* *viC* *yiC*
 iC               "inner COLUMN", a column based on "inner WORD" |iW|.
