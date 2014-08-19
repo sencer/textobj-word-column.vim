@@ -3,24 +3,24 @@ Given (sample text from documentation):
   abcdef omg
   abc    omg
 
-Do (TODO: position cursor and change to x):
-  fccicx
+Do (position cursor and change to x):
+  fccacx
 
 Expect (output of documentation):
   x omg
   x omg
   x omg
 
-Do (TODO: position cursor and change to x):
-  ellcicx
+Do (position cursor and change to x):
+  ellcacx
 
 Expect (output of documentation):
   x omg
   x omg
   x omg
 
-Do (TODO: position cursor and change to x):
-  fohcicx
+Do (position cursor and change to x):
+  fohcacx
 
 Expect (output of documentation):
   abc   xomg
