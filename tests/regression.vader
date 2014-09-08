@@ -50,3 +50,58 @@ Expect (text has same trailing end):
                 so we don't mx
              every nonblank line.
 
+Given (text indented with equal and unequal leading tabs):
+  Given a bunch of text indented
+  						with tabs, we want
+  			to match based on screen
+  position and not byte position.
+  							We care about what
+  											the user sees.
+
+  Given a bunch of text indented
+  						with tabs, we want
+  				to match XXXXX on screen
+  position and not byte position.
+  						We care about what
+  				the user sees.
+
+  function! s:has_matching_start_boundary(line_num, start_col)
+  	let boundary_re = '^.\<.'
+  	if a:start_col == 1
+  		return 1
+  	endif
+  	return s:has_matching_boundary(a:line_num, a:start_col, boundary_re)
+  endf
+
+Do (TODO: change some columns to x):
+# Force tab width to match current file.
+  :set sw=2 ts=2\<CR>
+  /want\<CR>cicx
+  \<Esc>
+  /XXXXX\<CR>cicy
+  \<Esc>
+  /let\<CR>cicz
+
+Expect (columns containing starting word are changed):
+  Given a bunch of text index
+  						with tabs, we x
+  			to match based on scx
+  position and not byte posix.
+  							We care about what
+  											the user sees.
+
+  Given a bunch of yindented
+  						with y we want
+  				to match y on screen
+  position and not yposition.
+  						We care about what
+  				the user sees.
+
+  function! s:has_matching_start_boundary(line_num, start_col)
+  	z boundary_re = '^.\<.'
+  	za:start_col == 1
+  		return 1
+  	endif
+  	return s:has_matching_boundary(a:line_num, a:start_col, boundary_re)
+  endf
+
