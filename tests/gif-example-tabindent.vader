@@ -13,7 +13,7 @@ Given ruby (Example from animated gif):
   	@ruby_version    = nil
   end
 
-Do (TODO: Changes from first quarter of gif):
+Do (Changes from first quarter of gif):
   jfeBcic:
 
 Expect ruby (Changed @ to :):
@@ -28,7 +28,7 @@ Expect ruby (Changed @ to :):
   	:ruby_version    = nil
   end
 
-Do (TODO: Changes from first half of gif (changed I: to just : since we used cic)):
+Do (Changes from first half of gif (changed I: to just : since we used cic)):
   jfeBcic:\<Esc>f=vicA>
 
 Expect ruby (Changed @ to :, = to =>):

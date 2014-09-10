@@ -14,10 +14,33 @@ function! textobj#word_column#select_aW()
     return s:select('aW')
 endfunction
 
+function! s:create_col_obj(expr)
+  let col_obj = {}
+  let col_obj.vcol = virtcol(a:expr)
+  let col_obj.bcol = col(a:expr)
+  return col_obj
+endf
+
+function! s:min_col_obj(col_obj_1, col_obj_2)
+  if a:col_obj_1.bcol < a:col_obj_2.bcol
+    return a:col_obj_1
+  else
+    return a:col_obj_2
+  endif
+endf
+
+function! s:max_col_obj(col_obj_1, col_obj_2)
+  if a:col_obj_1.bcol > a:col_obj_2.bcol
+    return a:col_obj_1
+  else
+    return a:col_obj_2
+  endif
+endf
+
 function! s:select(textobj)
   let cursor_col = virtcol(".")
   exec "silent normal! v" . a:textobj . "\<Esc>"
-  let col_bounds      = [virtcol("'<"), virtcol("'>")]
+  let col_bounds      = [s:create_col_obj("'<"), s:create_col_obj("'>")]
   let line_num        = line(".")
 
   if (exists("g:textobj_word_column_no_exact_boundary_cols"))
@@ -25,7 +48,7 @@ function! s:select(textobj)
 
     let line_bounds     = []
     for step in [-1, 1]
-      let line_bounds += [s:find_boundary_row(line_num, col("'<"), col_bounds[0], indent_level, step)]
+      let line_bounds += [s:find_boundary_row(line_num, col_bounds[0], indent_level, step)]
     endfor
 
     let whitespace_only = s:whitespace_column_wanted(line_bounds[0], line_bounds[1], cursor_col)
@@ -33,7 +56,7 @@ function! s:select(textobj)
     if (exists("g:textobj_word_column_no_smart_boundary_cols"))
       " Do nothing: keep use initial selection's col bounds.
     else
-      let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, a:textobj, whitespace_only)
+      let col_bounds.bcol = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, a:textobj, whitespace_only)
     endif
   else
     let [line_bounds, col_bounds] = s:find_rectangle(line_num, col_bounds, a:textobj)
@@ -47,7 +70,7 @@ function! s:select(textobj)
   let [bufnum, _, _, off] = getpos('.')
   let result = ["\<C-v>"]
   for i in range(2)
-    let result += [[bufnum, line_bounds[i], col_bounds[i], off]]
+    let result += [[bufnum, line_bounds[i], col_bounds[i].bcol, off]]
   endfor
 
   return result
@@ -147,7 +170,7 @@ function! s:is_identical(ref_line, check_line, col_bounds)
   let ref_line = getline(a:ref_line)
   let check_line = getline(a:check_line)
 
-  let char_bounds = [a:col_bounds[0] - 1, a:col_bounds[1] - 1]
+  let char_bounds = [a:col_bounds[0].vcol - 1, a:col_bounds[1].vcol - 1]
 
   let ref_selection  = ref_line[char_bounds[0] : char_bounds[1]]
   let check_selection = check_line[char_bounds[0] : char_bounds[1]]
@@ -188,22 +211,20 @@ endf
 function! s:has_matching_start_boundary(line_num, start_col)
   " Include the character before the column we're looking at. we want to see
   " the space or other word-boundary-breaking character before. 
-  let check_col = a:start_col - 1
+  let check_col = a:start_col.vcol - 1
   let boundary_re = '^.\<.'
-  if a:start_col == 1
+  if a:start_col.vcol == 1
     " Beginning of line won't have leading character. Make sure it's a word
     " boundary so we don't match every nonblank line.
     let boundary_re = '^\<.'
-    let check_col = a:start_col
+    let check_col = 1
   endif
   return s:has_matching_boundary(a:line_num, check_col, boundary_re)
 endf
 function! s:has_matching_end_boundary(line_num, end_col)
-  " Include the character after the column we're looking at. If we're checking
-  " end, accept eol instead.
-  let check_col = a:end_col
+  let check_col = a:end_col.vcol
   let boundary_re = '^.\>.'
-  if a:end_col == ( virtcol([a:line_num, "$"]) - 1 )
+  if check_col == ( virtcol([a:line_num, "$"]) - 1 )
     " End of line won't have trailing character. Make sure it's a word
     " boundary so we don't match every nonblank line.
     let boundary_re = '^.\>'
@@ -245,8 +266,8 @@ function! s:find_smart_boundary_cols(start_line, stop_line, cursor_col, textobj,
 
   while index <= a:stop_line
     exec "keepjumps silent normal!" index . "gg" . a:cursor_col . "|" . word_start . "v" . a:textobj . "\<Esc>"
-    let start_col  = virtcol("'<")
-    let stop_col   = virtcol("'>")
+    let start_col  = s:create_col_obj("'<")
+    let stop_col   = s:create_col_obj("'>")
     if len(col_bounds) == 0
       let col_bounds = [start_col, stop_col]
     else
@@ -259,14 +280,14 @@ function! s:find_smart_boundary_cols(start_line, stop_line, cursor_col, textobj,
 endfunction
 
 function! s:col_bounds_max(start_col, stop_col, col_bounds)
-  let a:col_bounds[0] = min([a:start_col, a:col_bounds[0]])
-  let a:col_bounds[1] = max([a:stop_col, a:col_bounds[1]])
+  let a:col_bounds[0] = s:min_col_obj(a:start_col, a:col_bounds[0])
+  let a:col_bounds[1] = s:max_col_obj(a:stop_col, a:col_bounds[1])
   return a:col_bounds
 endfunction
 
 function! s:col_bounds_min(start_col, stop_col, col_bounds)
-  let a:col_bounds[0] = max([a:start_col, a:col_bounds[0]])
-  let a:col_bounds[1] = min([a:stop_col, a:col_bounds[1]])
+  let a:col_bounds[0] = s:max_col_obj(a:start_col, a:col_bounds[0])
+  let a:col_bounds[1] = s:min_col_obj(a:stop_col, a:col_bounds[1])
   return a:col_bounds
 endfunction
 
@@ -284,7 +305,7 @@ function! s:whitespace_column_wanted(start_line, stop_line, cursor_col)
   return 1
 endfunction
 
-function! s:find_boundary_row(start_line, start_col, start_vcol, indent_level, step)
+function! s:find_boundary_row(start_line, start_col, indent_level, step)
   let current_line = a:start_line
   let max_boundary = 0
   if a:step == 1
@@ -294,8 +315,8 @@ function! s:find_boundary_row(start_line, start_col, start_vcol, indent_level, s
     let next_line      = current_line + a:step
     let non_blank      = getline(next_line) =~ "[^ \t]"
     let same_indent    = s:indent_level(next_line) == a:indent_level
-    let has_width      = getline(next_line) =~ '\%'.a:start_vcol.'v'
-    let is_not_comment = ! s:is_comment(next_line, a:start_col)
+    let has_width      = getline(next_line) =~ '\%'. a:start_col.vcol .'v'
+    let is_not_comment = ! s:is_comment(next_line, a:start_col.bcol)
     if same_indent && non_blank && has_width && is_not_comment
       let current_line = next_line
     else
