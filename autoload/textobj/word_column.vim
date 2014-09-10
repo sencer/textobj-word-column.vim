@@ -19,23 +19,27 @@ function! s:select(textobj)
   exec "silent normal! v" . a:textobj . "\<Esc>"
   let col_bounds      = [virtcol("'<"), virtcol("'>")]
   let line_num        = line(".")
-  let indent_level    = s:indent_level(".")
 
-  let line_bounds     = []
-  for step in [-1, 1]
-    let line_bounds += [s:find_boundary_row(line_num, col("'<"), col_bounds[0], indent_level, step)]
-  endfor
+  if (exists("g:textobj_word_column_no_exact_boundary_cols"))
+    let indent_level    = s:indent_level(".")
 
-  let whitespace_only = s:whitespace_column_wanted(line_bounds[0], line_bounds[1], cursor_col)
+    let line_bounds     = []
+    for step in [-1, 1]
+      let line_bounds += [s:find_boundary_row(line_num, col("'<"), col_bounds[0], indent_level, step)]
+    endfor
 
-  if (exists("g:textobj_word_column_no_smart_boundary_cols"))
-    " Do nothing: keep use input col bounds.
-  elseif (exists("g:textobj_word_column_no_clever_boundary_cols"))
-    let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, a:textobj, whitespace_only)
+    let whitespace_only = s:whitespace_column_wanted(line_bounds[0], line_bounds[1], cursor_col)
+
+    if (exists("g:textobj_word_column_no_smart_boundary_cols"))
+      " Do nothing: keep use initial selection's col bounds.
+    else
+      let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, a:textobj, whitespace_only)
+    endif
   else
-    let [line_bounds, col_bounds] = s:find_rectangle(line_num, col_bounds, a:textobj, whitespace_only)
+    let [line_bounds, col_bounds] = s:find_rectangle(line_num, col_bounds, a:textobj)
     " Use smart boundary cols for 'around'.
     if a:textobj[0] == 'a'
+      let whitespace_only = s:whitespace_column_wanted(line_bounds[0], line_bounds[1], cursor_col)
       let col_bounds = s:find_smart_boundary_cols(line_bounds[0], line_bounds[1], cursor_col, 'i'. a:textobj[1], whitespace_only)
     endif
   endif
@@ -53,7 +57,7 @@ endfunction
 "  New boundary discovery  "
 """"""""""""""""""""""""""""
 
-function! s:find_rectangle(start_line, col_bounds, textobj, whitespace_only)
+function! s:find_rectangle(start_line, col_bounds, textobj)
   " Check the surrounding lines for the same word boundaries.
   let r = s:check_matches_above(a:start_line, a:col_bounds)
   let has_start_match_above = r[0]
