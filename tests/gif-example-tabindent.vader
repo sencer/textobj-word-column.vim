@@ -1,0 +1,60 @@
+Before(Force tab width to match vader settings):
+  set sw=2 ts=2
+
+Given ruby (Example from animated gif):
+  def initialize
+  	@rubygems_source = Source::Rubygems.new
+  	@source          = nil
+  	@sources         = []
+  	@dependencies    = []
+  	@groups          = []
+  	@platforms       = []
+  	@env             = nil
+  	@ruby_version    = nil
+  end
+
+Do (TODO: Changes from first quarter of gif):
+  jfeBcic:
+
+Expect ruby (Changed @ to :):
+  def initialize
+  	:rubygems_source = Source::Rubygems.new
+  	:source          = nil
+  	:sources         = []
+  	:dependencies    = []
+  	:groups          = []
+  	:platforms       = []
+  	:env             = nil
+  	:ruby_version    = nil
+  end
+
+Do (TODO: Changes from first half of gif (changed I: to just : since we used cic)):
+  jfeBcic:\<Esc>f=vicA>
+
+Expect ruby (Changed @ to :, = to =>):
+  def initialize
+  	:rubygems_source => Source::Rubygems.new
+  	:source          => nil
+  	:sources         => []
+  	:dependencies    => []
+  	:groups          => []
+  	:platforms       => []
+  	:env             => nil
+  	:ruby_version    => nil
+  end
+
+Do (TODO: All changes from gif):
+  jfeBcic:\<Esc>f=vicA>\<Esc>bvicUhdicf=vicolx
+
+Expect ruby (Changed @ to :, = to =>, words to uppercase, removed :, removed >):
+  def initialize
+  	RUBYGEMS_SOURCE = Source::Rubygems.new
+  	SOURCE          = nil
+  	SOURCES         = []
+  	DEPENDENCIES    = []
+  	GROUPS          = []
+  	PLATFORMS       = []
+  	ENV             = nil
+  	RUBY_VERSION    = nil
+  end
+
