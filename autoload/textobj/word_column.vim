@@ -258,12 +258,8 @@ function! s:col_bounds_max(start_col, stop_col, col_bounds)
   if a:col_bounds == []
     return [a:start_col, a:stop_col]
   endif
-  if a:start_col < a:col_bounds[0]
-    let a:col_bounds[0] = a:start_col
-  endif
-  if a:stop_col > a:col_bounds[1]
-    let a:col_bounds[1] = a:stop_col
-  endif
+  let a:col_bounds[0] = min([a:start_col, a:col_bounds[0]])
+  let a:col_bounds[1] = max([a:stop_col, a:col_bounds[1]])
   return a:col_bounds
 endfunction
 
@@ -271,12 +267,8 @@ function! s:col_bounds_min(start_col, stop_col, col_bounds)
   if a:col_bounds == []
     return [a:start_col, a:stop_col]
   endif
-  if a:start_col > a:col_bounds[0]
-    let a:col_bounds[0] = a:start_col
-  endif
-  if a:stop_col < a:col_bounds[1]
-    let a:col_bounds[1] = a:stop_col
-  endif
+  let a:col_bounds[0] = max([a:start_col, a:col_bounds[0]])
+  let a:col_bounds[1] = min([a:stop_col, a:col_bounds[1]])
   return a:col_bounds
 endfunction
 
