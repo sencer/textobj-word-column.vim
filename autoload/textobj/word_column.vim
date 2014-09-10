@@ -247,7 +247,11 @@ function! s:find_smart_boundary_cols(start_line, stop_line, cursor_col, textobj,
     exec "keepjumps silent normal!" index . "gg" . a:cursor_col . "|" . word_start . "v" . a:textobj . "\<Esc>"
     let start_col  = virtcol("'<")
     let stop_col   = virtcol("'>")
-    let col_bounds = s:col_bounds_fn(start_col, stop_col, col_bounds)
+    if len(col_bounds) == 0
+      let col_bounds = [start_col, stop_col]
+    else
+      let col_bounds = s:col_bounds_fn(start_col, stop_col, col_bounds)
+    endif
     let index      = index + 1
   endwhile
 
@@ -255,18 +259,12 @@ function! s:find_smart_boundary_cols(start_line, stop_line, cursor_col, textobj,
 endfunction
 
 function! s:col_bounds_max(start_col, stop_col, col_bounds)
-  if a:col_bounds == []
-    return [a:start_col, a:stop_col]
-  endif
   let a:col_bounds[0] = min([a:start_col, a:col_bounds[0]])
   let a:col_bounds[1] = max([a:stop_col, a:col_bounds[1]])
   return a:col_bounds
 endfunction
 
 function! s:col_bounds_min(start_col, stop_col, col_bounds)
-  if a:col_bounds == []
-    return [a:start_col, a:stop_col]
-  endif
   let a:col_bounds[0] = max([a:start_col, a:col_bounds[0]])
   let a:col_bounds[1] = min([a:stop_col, a:col_bounds[1]])
   return a:col_bounds
