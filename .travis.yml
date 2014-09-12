@@ -3,6 +3,7 @@ language: vim
 before_script: |
   git clone https://github.com/junegunn/vader.vim.git vader
   git clone https://github.com/kana/vim-textobj-user.git textobj-user
+  git clone https://github.com/tpope/vim-sensible.git sensible
 
   hg clone https://code.google.com/p/vim/
   cd vim
@@ -15,6 +16,7 @@ before_script: |
 script: |
   /usr/local/bin/vim -Nu <(cat << VIMRC
   set rtp+=vader
+  set rtp+=sensible
   set rtp+=textobj-user
   set rtp+=.
   set rtp+=textobj-user/after
