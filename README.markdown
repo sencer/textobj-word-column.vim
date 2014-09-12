@@ -1,5 +1,7 @@
 ## textobj-word-column.vim
 
+[![Build Status](https://api.travis-ci.org/idbrii/textobj-word-column.vim.svg)](https://travis-ci.org/idbrii/textobj-word-column.vim)
+
 The word-based column text-object makes operating on columns of code
 conceptually simpler and reduces keystrokes.
 
