@@ -21,6 +21,8 @@ and even unecessary for certain operations.
 This plugin adds `ic`, `ac`, `iC`, and `aC` as text-objects.  Use them in
 commands like `vic`, `cic`, and `daC`.
 
+This plugin requires the [vim-textobj-user](https://github.com/kana/vim-textobj-user) plugin.
+
 ### Learn more in the plugin doc:
 
 https://github.com/coderifous/textobj-word-column.vim/blob/master/doc/textobj-word-column.txt
