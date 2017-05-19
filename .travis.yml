@@ -22,4 +22,4 @@ script: |
   set rtp+=.
   set rtp+=textobj-user/after
   set rtp+=./after
-  VIMRC) -c 'Vader! tests/*' > /dev/null
+  VIMRC) -c 'Vader! test/*' > /dev/null
