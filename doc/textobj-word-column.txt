@@ -68,9 +68,11 @@ your changes in a branch, and then submit a pull request for that branch.
 ===============================================================================
 CREDITS                                           *textobj-word-column-credits*
 
-Developed by Jim Garvin <http://github.com/coderifous>.
+Originally created by Jim Garvin <http://github.com/coderifous>.
 
-Git repository: https://github.com/coderifous/textobj-word-column.vim
+Enhanced by David Briscoe <http://github.com/idbrii>.
+
+Git repository: https://github.com/idbrii/textobj-word-column.vim
 
 ===============================================================================
 CHANGELOG                                       *textobj-word-column-changelog*

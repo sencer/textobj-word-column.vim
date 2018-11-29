@@ -25,6 +25,6 @@ This plugin requires the [vim-textobj-user](https://github.com/kana/vim-textobj-
 
 ### Learn more in the plugin doc:
 
-https://github.com/coderifous/textobj-word-column.vim/blob/master/doc/textobj-word-column.txt
+https://github.com/idbrii/textobj-word-column.vim/blob/master/doc/textobj-word-column.txt
 
 [1]: http://i.imgur.com/AAgM9.gif
